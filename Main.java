@@ -12,8 +12,8 @@ import java.util.List;
 public class Main {
     // Configurable constants
     public static final String PATCH_NAME = "EuphoriaPatches";
-    public static final String VERSION = "_r5.2.2";
-    public static final String PATCH_VERSION = "_1.3.2";
+    public static final String VERSION = "_r5.3";
+    public static final String PATCH_VERSION = "_1.4.0";
     public static final List<String> STYLES = Arrays.asList("Reimagined", "Unbound");
 
     // Encryption constants
