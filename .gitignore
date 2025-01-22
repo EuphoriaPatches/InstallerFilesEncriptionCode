@@ -18,6 +18,8 @@
 .idea/sqlDataSources.xml
 .idea/dynamic.xml
 .idea/uiDesigner.xml
+.idea/misc.xml
+.idea/modules.xml
 
 # Gradle:
 .idea/gradle.xml
@@ -33,6 +35,9 @@
 
 # IntelliJ
 /out/
+
+/DestinationFolder/
+/SourceFolder/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
