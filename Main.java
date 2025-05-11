@@ -13,7 +13,7 @@ public class Main {
     // Configurable constants
     public static final String PATCH_NAME = "EuphoriaPatches";
     public static final String VERSION = "_r5.5.1";
-    public static final String PATCH_VERSION = "_1.6.1";
+    public static final String PATCH_VERSION = "_1.6.2";
     public static final List<String> STYLES = Arrays.asList("Reimagined", "Unbound");
 
     // Encryption constants
@@ -34,6 +34,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         createFolders();
         deleteNonMatchingFiles();
+        clearCommonFolder();
         encodeFiles();
     }
 
@@ -42,10 +43,30 @@ public class Main {
         System.out.println("Created or verified Source folder: " + BLUE + sourceFolder + RESET);
         Files.createDirectories(destinationFolder);
         System.out.println("Created or verified Destination folder: " + BLUE + destinationFolder + RESET);
+
+        // Create common folder (without version subfolder)
+        Path commonFolder = destinationFolder.resolve("common");
+        Files.createDirectories(commonFolder);
+        System.out.println("Created or verified Common folder: " + BLUE + commonFolder + RESET);
+
         for (String style : STYLES) {
             Path styleFolder = destinationFolder.resolve(style + "/" + PATCH_VERSION);
             Files.createDirectories(styleFolder);
             System.out.println("Created or verified Style folder: " + BLUE + styleFolder + RESET);
+        }
+    }
+
+    public static void clearCommonFolder() {
+        Path commonFolder = destinationFolder.resolve("common");
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(commonFolder)) {
+            for (Path file : stream) {
+                if (Files.isRegularFile(file)) {
+                    System.out.println("Clearing file from common folder: " + file);
+                    Files.delete(file);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println(RED + "Error clearing common folder: " + e.getMessage() + RESET);
         }
     }
 
@@ -78,7 +99,14 @@ public class Main {
             Path filePath = sourceFolder.resolve(fileName);
 
             if (Files.exists(filePath)) {
-                encodeFile(aesCipher, filePath, style);
+                // Save to style-specific folder
+                Path styleOutputPath = destinationFolder.resolve(style + "/" + PATCH_VERSION);
+                encodeFile(aesCipher, filePath, styleOutputPath);
+
+                // Also save to common folder (without version subfolder)
+                Path commonOutputPath = destinationFolder.resolve("common");
+                encodeFile(aesCipher, filePath, commonOutputPath);
+
                 filesFound = true;
             } else {
                 System.out.println(RED + "File not found: " + filePath + RESET);
@@ -90,13 +118,12 @@ public class Main {
         }
     }
 
-    private static void encodeFile(Cipher aesCipher, Path inputPath, String style) throws Exception {
+    private static void encodeFile(Cipher aesCipher, Path inputPath, Path outputDirectory) throws Exception {
         byte[] clearText = Files.readAllBytes(inputPath);
         byte[] ciphertext = aesCipher.doFinal(clearText);
 
         String encodedFileName = Base64.getEncoder().withoutPadding().encodeToString(inputPath.getFileName().toString().getBytes());
-        Path styleOutputPath = destinationFolder.resolve(style + "/" + PATCH_VERSION);
-        Path outputPath = styleOutputPath.resolve(encodedFileName);
+        Path outputPath = outputDirectory.resolve(encodedFileName);
 
         Files.write(outputPath, ciphertext);
         System.out.println(GREEN + "File encoded successfully: " + BLUE + outputPath + RESET);
