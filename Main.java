@@ -13,7 +13,7 @@ public class Main {
     // Configurable constants
     public static final String PATCH_NAME = "EuphoriaPatches";
     public static final String VERSION = "_r5.5.1";
-    public static final String PATCH_VERSION = "_1.6.3";
+    public static final String PATCH_VERSION = "_1.6.4";
     public static final List<String> STYLES = Arrays.asList("Reimagined", "Unbound");
 
     // Encryption constants
